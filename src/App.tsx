@@ -104,13 +104,13 @@ const App: React.FC = () => {
               <div className="absolute top-1/2 -translate-y-1/2 right-4 z-[500] flex flex-col gap-2 pointer-events-auto">
                 <button
                   onClick={() => mapComponentRef.current?.zoomIn()}
-                  className="w-8 h-8 md:w-10 md:h-10 rounded-full flex items-center justify-center bg-surface text-white shadow-lg hover:bg-accent-hover transition-all"
+                  className="w-8 h-8 md:w-10 md:h-10 rounded-full flex items-center justify-center bg-white text-accent shadow-lg hover:bg-accent hover:text-white transition-all"
                 >
                   <Plus size={14} />
                 </button>
                 <button
                   onClick={() => mapComponentRef.current?.zoomOut()}
-                  className="w-8 h-8 md:w-10 md:h-10 rounded-full flex items-center justify-center bg-surface text-white shadow-lg hover:bg-accent-hover transition-all"
+                  className="w-8 h-8 md:w-10 md:h-10 rounded-full flex items-center justify-center bg-white text-accent shadow-lg hover:bg-accent hover:text-white transition-all"
                 >
                   <Minus size={14} />
                 </button>
@@ -118,8 +118,8 @@ const App: React.FC = () => {
                   <button
                     onClick={() => setIsLayerMenuOpen(!isLayerMenuOpen)}
                     className={`w-8 h-8 md:w-10 md:h-10 rounded-full flex items-center justify-center transition-all shadow-lg ${
-                      isLayerMenuOpen ? 'bg-accent text-white' : 'bg-surface text-white'
-                    } hover:bg-accent`}
+                      isLayerMenuOpen ? 'bg-accent text-white' : 'bg-white text-accent'
+                    } hover:bg-accent hover:text-white`}
                   >
                     <Layers size={14} />
                   </button>
@@ -151,7 +151,7 @@ const App: React.FC = () => {
                     setSelectedDistrictId(null);
                     setIsExpanded(false);
                   }}
-                  className="w-8 h-8 md:w-10 md:h-10 rounded-full flex items-center justify-center bg-surface text-white shadow-lg hover:bg-accent-hover transition-all"
+                  className="w-8 h-8 md:w-10 md:h-10 rounded-full flex items-center justify-center bg-white text-accent shadow-lg hover:bg-accent hover:text-white transition-all"
                 >
                   <Target size={14} />
                 </button>
