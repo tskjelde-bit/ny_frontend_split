@@ -35,7 +35,7 @@ jobs:
         run: npm run build
         env:
           NODE_ENV: production
-          VITE_MAPBOX_TOKEN: ${{ secrets.VITE_MAPBOX_TOKEN }}
+          VITE_MAPBOX_TOKEN: ${{ secrets.MAPBOX_R }}
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
