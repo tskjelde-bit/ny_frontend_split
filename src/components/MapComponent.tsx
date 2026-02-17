@@ -39,9 +39,9 @@ export const TILE_LAYERS: Record<TileLayerKey, { name: string; url: string; opti
   },
 };
 
-// CartoDB tiles for automatic theme switching
-const CARTO_DARK_URL = 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png';
-const CARTO_LIGHT_URL = 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png';
+// Custom Mapbox dark style for automatic theme switching
+const MAPBOX_DARK_STYLE_URL = `https://api.mapbox.com/styles/v1/drskjelde/cmlqetclu004r01sc7rw5ecrb/tiles/{z}/{x}/{y}@2x?access_token=${MAPBOX_TOKEN}`;
+const MAPBOX_DARK_STYLE_OPTIONS: L.TileLayerOptions = { maxZoom: 19, tileSize: 512, zoomOffset: -1 };
 
 // Per-layer style config
 const LAYER_STYLES: Record<TileLayerKey, {
@@ -166,7 +166,6 @@ const MapComponent = forwardRef<MapComponentHandle, MapComponentProps>(({
   const dataLoadedRef = useRef(false);
   const tileLayerRef = useRef<L.TileLayer | null>(null);
   const activeTileKeyRef = useRef<TileLayerKey>('blue');
-  const themeLayerRef = useRef<L.TileLayer | null>(null);
 
   // Stable refs for callbacks
   const districtsRef = useRef(districts);
@@ -355,11 +354,6 @@ const MapComponent = forwardRef<MapComponentHandle, MapComponentProps>(({
       if (tileLayerRef.current) {
         map.removeLayer(tileLayerRef.current);
       }
-      // Remove theme layer if present
-      if (themeLayerRef.current) {
-        map.removeLayer(themeLayerRef.current);
-        themeLayerRef.current = null;
-      }
       activeTileKeyRef.current = key;
       const def = TILE_LAYERS[key];
       tileLayerRef.current = L.tileLayer(def.url, def.options).addTo(map);
@@ -381,9 +375,14 @@ const MapComponent = forwardRef<MapComponentHandle, MapComponentProps>(({
       attributionControl: false,
     }).setView(view.center, view.zoom);
 
-    // Default tile layer (blue)
-    const def = TILE_LAYERS.blue;
-    tileLayerRef.current = L.tileLayer(def.url, def.options).addTo(map);
+    // Default tile layer — use dark Mapbox style if isDark, otherwise blue
+    if (isDark) {
+      tileLayerRef.current = L.tileLayer(MAPBOX_DARK_STYLE_URL, MAPBOX_DARK_STYLE_OPTIONS).addTo(map);
+      activeTileKeyRef.current = 'blue'; // still logically 'blue' for the layer menu
+    } else {
+      const def = TILE_LAYERS.blue;
+      tileLayerRef.current = L.tileLayer(def.url, def.options).addTo(map);
+    }
 
     mapRef.current = map;
 
@@ -425,40 +424,37 @@ const MapComponent = forwardRef<MapComponentHandle, MapComponentProps>(({
     };
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Switch CartoDB tiles when isDark changes
+  // Switch between custom Mapbox dark/light tiles when isDark changes
   useEffect(() => {
     const map = mapRef.current;
     if (!map) return;
 
-    // Remove previous theme layer if it exists
-    if (themeLayerRef.current) {
-      map.removeLayer(themeLayerRef.current);
-      themeLayerRef.current = null;
-    }
-
-    // Only apply CartoDB theme tiles when using 'blue' tile layer
-    // (other tile layers have their own styling)
+    // Only auto-switch when on the default 'blue' tile layer
     const activeKey = activeTileKeyRef.current;
-    if (activeKey === 'blue') {
-      // Swap the main tile layer to CartoDB dark/light
-      if (tileLayerRef.current) {
-        map.removeLayer(tileLayerRef.current);
-      }
-      const url = isDark ? CARTO_DARK_URL : CARTO_LIGHT_URL;
-      tileLayerRef.current = L.tileLayer(url, { maxZoom: 19 }).addTo(map);
+    if (activeKey !== 'blue') return;
 
-      // Use dark styles for dark mode, blue styles for light mode
-      const styleKey: TileLayerKey = isDark ? 'dark' : 'blue';
-      activeTileKeyRef.current = styleKey;
-
-      if (dataLoadedRef.current) {
-        renderGeoJson();
-        renderLabels();
-      }
-
-      // Restore the key after rendering so the layer menu still works
-      activeTileKeyRef.current = activeKey;
+    // Swap tile layer
+    if (tileLayerRef.current) {
+      map.removeLayer(tileLayerRef.current);
     }
+    if (isDark) {
+      tileLayerRef.current = L.tileLayer(MAPBOX_DARK_STYLE_URL, MAPBOX_DARK_STYLE_OPTIONS).addTo(map);
+    } else {
+      const def = TILE_LAYERS.blue;
+      tileLayerRef.current = L.tileLayer(def.url, def.options).addTo(map);
+    }
+
+    // Use dark overlay styles for dark mode, blue for light mode
+    const styleKey: TileLayerKey = isDark ? 'dark' : 'blue';
+    activeTileKeyRef.current = styleKey;
+
+    if (dataLoadedRef.current) {
+      renderGeoJson();
+      renderLabels();
+    }
+
+    // Restore key so layer menu still recognises 'blue' as active
+    activeTileKeyRef.current = activeKey;
   }, [isDark, renderGeoJson, renderLabels]);
 
   // Re-render when selectedDistrict changes
