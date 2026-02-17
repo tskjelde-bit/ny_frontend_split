@@ -30,33 +30,64 @@ export const TILE_LAYERS: Record<TileLayerKey, { name: string; url: string; opti
 const MAPBOX_DARK_STYLE_URL = `https://api.mapbox.com/styles/v1/drskjelde/cmlqhxlot000401sdfh3a2ktd/tiles/{z}/{x}/{y}@2x?access_token=${MAPBOX_TOKEN}`;
 const MAPBOX_DARK_STYLE_OPTIONS: L.TileLayerOptions = { maxZoom: 19, tileSize: 512, zoomOffset: -1 };
 
+// Choropleth color scale for light mode (based on priceChange %)
+const CHOROPLETH_SCALE: [number, string][] = [
+  [0, '#93C5FD'],
+  [2, '#60A5FA'],
+  [3, '#3B82F6'],
+  [4, '#2563EB'],
+  [5, '#1D4ED8'],
+  [6, '#1E40AF'],
+];
+const CHOROPLETH_MAX = '#1E3A8A';
+const SELECTED_COLOR_LIGHT = '#2D4B5F';
+
+function getChoroplethColor(priceChange: number): string {
+  for (let i = CHOROPLETH_SCALE.length - 1; i >= 0; i--) {
+    if (priceChange >= CHOROPLETH_SCALE[i][0]) return CHOROPLETH_SCALE[i][1];
+  }
+  return CHOROPLETH_SCALE[0][1];
+}
+
+function getHoverColor(priceChange: number): string {
+  const natural = getChoroplethColor(priceChange);
+  const idx = CHOROPLETH_SCALE.findIndex(([, c]) => c === natural);
+  if (idx < CHOROPLETH_SCALE.length - 1) return CHOROPLETH_SCALE[idx + 1][1];
+  return CHOROPLETH_MAX;
+}
+
 // Theme-aware style helpers
 function getThemeStyles(dark: boolean) {
   return {
     border: {
-      color: dark ? 'rgba(255,255,255,0.15)' : 'rgba(15,23,42,0.2)',
-      weight: 1,
+      color: dark ? 'rgba(255,255,255,0.15)' : '#FFFFFF',
+      weight: dark ? 1 : 1.5,
+      opacity: dark ? 1 : 0.8,
       selectedColor: dark ? '#3b82f6' : '#2563eb',
       selectedWeight: 2,
     },
     fill: {
-      default: dark ? 'rgba(59,130,246,0.05)' : 'rgba(37,99,235,0.03)',
-      hover: dark ? 'rgba(59,130,246,0.12)' : 'rgba(37,99,235,0.08)',
-      selected: dark ? 'rgba(59,130,246,0.2)' : 'rgba(37,99,235,0.15)',
+      // Dark mode: subtle fills. Light mode: uses choropleth instead.
+      default: dark ? 'rgba(59,130,246,0.05)' : 'transparent',
+      hover: dark ? 'rgba(59,130,246,0.12)' : 'transparent',
+      selected: dark ? 'rgba(59,130,246,0.2)' : SELECTED_COLOR_LIGHT,
     },
     label: {
-      color: dark ? '#f1f5f9' : '#0f172a',
+      color: dark ? '#f1f5f9' : '#1E3A50',
       shadow: dark
         ? '0 1px 3px rgba(0,0,0,0.8), 0 0 8px rgba(0,0,0,0.5)'
-        : '0 1px 2px rgba(255,255,255,0.9), 0 0 4px rgba(255,255,255,0.7)',
-      selectedColor: dark ? '#3b82f6' : '#2563eb',
+        : '0 0 4px rgba(255,255,255,0.9), 0 0 2px rgba(255,255,255,0.9)',
+      selectedColor: dark ? '#3b82f6' : '#FFFFFF',
+      selectedShadow: dark
+        ? '0 1px 3px rgba(0,0,0,0.8), 0 0 8px rgba(0,0,0,0.5)'
+        : '0 1px 3px rgba(0,0,0,0.4)',
     },
-    // Dimming for non-selected when a district is selected
     dim: {
       labelOpacity: 0.5,
       borderOpacity: 0.3,
       fillOpacity: 0.2,
     },
+    useChoropleth: !dark,
   };
 }
 
@@ -155,13 +186,25 @@ const MapComponent = forwardRef<MapComponentHandle, MapComponentProps>(({
         if (isSelected) {
           return {
             fillColor: ts.fill.selected,
-            fillOpacity: 1,
+            fillOpacity: ts.useChoropleth ? 0.4 : 1,
             weight: ts.border.selectedWeight,
             color: ts.border.selectedColor,
             opacity: 1,
           };
         }
 
+        if (ts.useChoropleth && district) {
+          // Light mode: choropleth fill
+          return {
+            fillColor: getChoroplethColor(district.priceChange),
+            fillOpacity: hasSelection ? ts.dim.fillOpacity : 0.4,
+            weight: ts.border.weight,
+            color: ts.border.color,
+            opacity: hasSelection ? ts.dim.borderOpacity : ts.border.opacity,
+          };
+        }
+
+        // Dark mode: subtle fill
         return {
           fillColor: ts.fill.default,
           fillOpacity: hasSelection ? ts.dim.fillOpacity : 1,
@@ -180,17 +223,27 @@ const MapComponent = forwardRef<MapComponentHandle, MapComponentProps>(({
             const target = e.target;
             const sel = selectedDistrictRef.current;
             const dark = !!isDarkRef.current;
-            const ts = getThemeStyles(dark);
+            const hoverTs = getThemeStyles(dark);
 
             if (!sel || district.name !== sel.name) {
               if (!isSnapmap) {
-                target.setStyle({
-                  fillColor: ts.fill.hover,
-                  fillOpacity: 1,
-                  weight: ts.border.selectedWeight,
-                  color: ts.border.selectedColor,
-                  opacity: 1,
-                });
+                if (hoverTs.useChoropleth) {
+                  target.setStyle({
+                    fillColor: getHoverColor(district.priceChange),
+                    fillOpacity: 0.55,
+                    weight: hoverTs.border.selectedWeight,
+                    color: hoverTs.border.selectedColor,
+                    opacity: 1,
+                  });
+                } else {
+                  target.setStyle({
+                    fillColor: hoverTs.fill.hover,
+                    fillOpacity: 1,
+                    weight: hoverTs.border.selectedWeight,
+                    color: hoverTs.border.selectedColor,
+                    opacity: 1,
+                  });
+                }
               }
               target.bringToFront();
             }
@@ -243,7 +296,7 @@ const MapComponent = forwardRef<MapComponentHandle, MapComponentProps>(({
       const fontWeight = isSelected ? '700' : '600';
       const letterSpacing = isMobile ? '0.06em' : '0.08em';
       const color = isSelected ? ts.label.selectedColor : ts.label.color;
-      const shadow = ts.label.shadow;
+      const shadow = isSelected ? ts.label.selectedShadow : ts.label.shadow;
       const opacity = isDimmed ? ts.dim.labelOpacity : 1;
 
       const icon = L.divIcon({
