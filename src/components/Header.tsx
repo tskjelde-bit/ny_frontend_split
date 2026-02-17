@@ -66,9 +66,9 @@ const Header: React.FC<HeaderProps> = ({ onToggleTheme, isDark }) => {
 
           <button
             onClick={onToggleTheme}
-            className="hidden lg:flex items-center justify-center w-10 h-10 rounded-full border border-br-subtle text-tx-muted hover:bg-elevated transition-all hover:text-accent"
+            className="flex items-center justify-center w-8 h-8 lg:w-10 lg:h-10 rounded-full border border-br-subtle text-tx-muted hover:bg-elevated transition-all hover:text-accent"
           >
-            {isDark ? <Sun className="w-4.5 h-4.5" /> : <Moon className="w-4.5 h-4.5" />}
+            {isDark ? <Sun className="w-4 h-4 lg:w-4.5 lg:h-4.5" /> : <Moon className="w-4 h-4 lg:w-4.5 lg:h-4.5" />}
           </button>
         </div>
 
@@ -96,13 +96,6 @@ const Header: React.FC<HeaderProps> = ({ onToggleTheme, isDark }) => {
                 {link.name}
               </a>
             ))}
-            <button
-              onClick={onToggleTheme}
-              className="flex items-center gap-2 text-[1rem] font-normal py-2 text-tx-muted hover:text-accent transition-all"
-            >
-              {isDark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
-              {isDark ? 'Lyst tema' : 'Mørkt tema'}
-            </button>
           </nav>
         </div>
       )}
