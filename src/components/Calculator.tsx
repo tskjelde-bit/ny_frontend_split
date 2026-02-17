@@ -3,7 +3,7 @@
 
 import React, { useState } from 'react';
 import { DistrictInfo, BoligType, Standard } from '@/types';
-import { OSLO_DISTRICTS, BOLIGTYPE_FACTORS, STANDARD_FACTORS } from '@/constants';
+import { OSLO_DISTRICTS, BOLIGTYPE_FACTORS, STANDARD_FACTORS, getPreposisjon } from '@/constants';
 import { X, Loader2, Sparkles, Home, Building2, Warehouse, DoorOpen, ArrowRight, TrendingUp, ChevronLeft, ChevronUp, ChevronDown } from 'lucide-react';
 
 interface CalculatorProps {
@@ -59,7 +59,7 @@ const Calculator: React.FC<CalculatorProps> = ({ district, onDistrictChange, onC
             Verdikalkulator
           </h1>
           <p className="text-tx-muted font-normal text-[0.8125rem] md:text-[0.9375rem] opacity-90">
-            Boligestimat for <span className="text-accent">{district.name}</span>
+            Boligestimat {getPreposisjon(district.name)} <span className="text-accent">{district.name}</span>
           </p>
         </div>
         <button

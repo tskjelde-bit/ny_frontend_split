@@ -1,5 +1,5 @@
 import React, { useState, useRef, useCallback } from 'react';
-import { OSLO_DISTRICTS } from '@/constants';
+import { OSLO_DISTRICTS, getPreposisjon } from '@/constants';
 import { DistrictInfo } from '@/types';
 import MapComponent, { MapComponentHandle, TileLayerKey, TILE_LAYERS } from '@/components/MapComponent';
 import DistrictStats from '@/components/DistrictStats';
@@ -71,7 +71,7 @@ const App: React.FC = () => {
           {/* Title Section */}
           <div className={`pt-2 md:pt-10 pb-2 md:pb-6 shrink-0 text-left px-4 md:px-0 ${showCalculator ? 'hidden md:block' : 'block'}`}>
             <h1 className="text-[1.75rem] md:text-[2.25rem] font-bold text-tx-primary tracking-[-0.02em] leading-[1.15] mb-0.5 md:mb-2">
-              Boligmarkedet i <span className="text-accent">{selectedDistrict?.name || 'Oslo'}</span>
+              Boligmarkedet {getPreposisjon(selectedDistrict?.name)} <span className="text-accent">{selectedDistrict?.name || 'Oslo'}</span>
             </h1>
             <p className="text-tx-muted font-normal text-[0.875rem] md:text-[0.9375rem] opacity-90 leading-relaxed whitespace-nowrap overflow-hidden text-ellipsis">
               {selectedDistrict?.description || 'Er det kjøper eller selgers marked i Oslo nå?'}

@@ -1,6 +1,13 @@
 
 import { DistrictData, DistrictInfo, BoligType, Standard } from './types';
 
+const PÅ_BYDELER = ['Grünerløkka', 'Frogner', 'Sagene', 'St. Hanshaugen'];
+
+export const getPreposisjon = (name: string | undefined): string => {
+  if (!name) return 'i';
+  return PÅ_BYDELER.includes(name) ? 'på' : 'i';
+};
+
 export const BOLIGTYPE_FACTORS: Record<BoligType, number> = {
   [BoligType.LEILIGHET]: 1.00,
   [BoligType.REKKEHUS]: 0.92,

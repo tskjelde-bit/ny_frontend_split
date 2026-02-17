@@ -3,6 +3,8 @@ import React, { useState } from 'react';
 import { Menu, X, Moon, Sun, ChevronDown } from 'lucide-react';
 import logoMobile from '../assets/logo_mobile.png';
 import logoStacked from '../assets/logo_stacked.png';
+import logoMobileDark from '../assets/logo_mobile_dark.png';
+import logoStackedDark from '../assets/logo_stacked_dark.png';
 
 interface HeaderProps {
   onToggleTheme: () => void;
@@ -28,12 +30,12 @@ const Header: React.FC<HeaderProps> = ({ onToggleTheme, isDark }) => {
         {/* Logo-seksjon */}
         <div className="flex items-center group cursor-pointer shrink-0">
           <img
-            src={logoMobile}
+            src={isDark ? logoMobileDark : logoMobile}
             alt="Innsikt"
             className="h-7 md:hidden"
           />
           <img
-            src={logoStacked}
+            src={isDark ? logoStackedDark : logoStacked}
             alt="Innsikt"
             className="h-12 hidden md:block"
           />

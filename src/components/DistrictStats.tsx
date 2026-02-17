@@ -3,7 +3,7 @@
 
 import React from 'react';
 import { DistrictInfo } from '@/types';
-import { CITY_AVERAGE } from '@/constants';
+import { CITY_AVERAGE, getPreposisjon } from '@/constants';
 import { TrendingUp, Clock, BarChart3, Coins } from 'lucide-react';
 
 interface DistrictStatsProps {
@@ -163,7 +163,7 @@ const DistrictStats: React.FC<DistrictStatsProps> = ({ district, isExpanded, onO
           onClick={onOpenCalculator}
           className="w-full bg-accent hover:bg-accent-hover text-white font-bold py-4 transition-all active:scale-[0.99] shadow-[0_-10px_20px_rgba(37,99,235,0.2)] text-[0.8125rem] md:text-[1rem]"
         >
-          Hva er boligen din på {data.name} verdt?
+          Hva er boligen din {getPreposisjon(data.name)} {data.name} verdt?
         </button>
       </div>
     );

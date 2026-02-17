@@ -24,7 +24,7 @@ const MAPBOX_TOKEN = import.meta.env.VITE_MAPBOX_TOKEN || '';
 export const TILE_LAYERS: Record<TileLayerKey, { name: string; url: string; options?: L.TileLayerOptions }> = {
   blue: {
     name: 'Blue',
-    url: `https://api.mapbox.com/styles/v1/drskjelde/cmlo7u0tk002r01qn5z3i9jps/tiles/{z}/{x}/{y}@2x?access_token=${MAPBOX_TOKEN}`,
+    url: `https://api.mapbox.com/styles/v1/drskjelde/cmlqiffkq000301qpb4r778e7/tiles/{z}/{x}/{y}@2x?access_token=${MAPBOX_TOKEN}`,
     options: { maxZoom: 19, tileSize: 512, zoomOffset: -1 },
   },
   snapmap: {
@@ -40,7 +40,7 @@ export const TILE_LAYERS: Record<TileLayerKey, { name: string; url: string; opti
 };
 
 // Custom Mapbox dark style for automatic theme switching
-const MAPBOX_DARK_STYLE_URL = `https://api.mapbox.com/styles/v1/drskjelde/cmlqetclu004r01sc7rw5ecrb/tiles/{z}/{x}/{y}@2x?access_token=${MAPBOX_TOKEN}`;
+const MAPBOX_DARK_STYLE_URL = `https://api.mapbox.com/styles/v1/drskjelde/cmlqhxlot000401sdfh3a2ktd/tiles/{z}/{x}/{y}@2x?access_token=${MAPBOX_TOKEN}`;
 const MAPBOX_DARK_STYLE_OPTIONS: L.TileLayerOptions = { maxZoom: 19, tileSize: 512, zoomOffset: -1 };
 
 // Per-layer style config
