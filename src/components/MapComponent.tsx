@@ -135,6 +135,7 @@ const MapComponent = forwardRef<MapComponentHandle, MapComponentProps>(({
   const mapRef = useRef<L.Map | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const geoJsonLayerRef = useRef<L.GeoJSON | null>(null);
+  const hoveredLayerRef = useRef<L.Layer | null>(null);
   const labelMarkersRef = useRef<L.Marker[]>([]);
   const geoJsonDataRef = useRef<any>(null);
   const labelDataRef = useRef<any[]>([]);
@@ -225,6 +226,14 @@ const MapComponent = forwardRef<MapComponentHandle, MapComponentProps>(({
             const dark = !!isDarkRef.current;
             const hoverTs = getThemeStyles(dark);
 
+            // Reset previously hovered layer to avoid stuck highlights
+            if (hoveredLayerRef.current && hoveredLayerRef.current !== target) {
+              if (geoJsonLayerRef.current) {
+                geoJsonLayerRef.current.resetStyle(hoveredLayerRef.current);
+              }
+            }
+            hoveredLayerRef.current = target;
+
             if (!sel || district.name !== sel.name) {
               if (!isSnapmap) {
                 if (hoverTs.useChoropleth) {
@@ -245,7 +254,6 @@ const MapComponent = forwardRef<MapComponentHandle, MapComponentProps>(({
                   });
                 }
               }
-              target.bringToFront();
             }
             const el = (target as any)._path;
             if (el) el.style.cursor = 'pointer';
@@ -253,6 +261,9 @@ const MapComponent = forwardRef<MapComponentHandle, MapComponentProps>(({
           mouseout: (e: L.LeafletMouseEvent) => {
             if (geoJsonLayerRef.current) {
               geoJsonLayerRef.current.resetStyle(e.target);
+            }
+            if (hoveredLayerRef.current === e.target) {
+              hoveredLayerRef.current = null;
             }
           },
           click: (e: L.LeafletMouseEvent) => {
