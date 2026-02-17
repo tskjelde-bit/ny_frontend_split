@@ -1,6 +1,7 @@
 
 import React, { useState } from 'react';
 import { ArrowRight, ChevronRight } from 'lucide-react';
+import articleMockup from '../assets/article_mockup.jpg';
 
 const RightPanel: React.FC<{ className?: string }> = ({ className }) => {
   const [email, setEmail] = useState('');
@@ -12,7 +13,7 @@ const RightPanel: React.FC<{ className?: string }> = ({ className }) => {
       date: 'JAN 12',
       category: 'MARKEDSINNSIKT',
       title: 'Boligpriser Oslo 2026–2028: Analyse av ferske prognoser',
-      image: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=600&q=80',
+      image: articleMockup,
       featured: true,
     },
     {
