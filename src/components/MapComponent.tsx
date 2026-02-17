@@ -165,7 +165,8 @@ const MapComponent = forwardRef<MapComponentHandle, MapComponentProps>(({
   const labelDataRef = useRef<any[]>([]);
   const dataLoadedRef = useRef(false);
   const tileLayerRef = useRef<L.TileLayer | null>(null);
-  const activeTileKeyRef = useRef<TileLayerKey>('blue');
+  const userTileKeyRef = useRef<TileLayerKey>('blue');   // what the user picked in layer menu
+  const activeTileKeyRef = useRef<TileLayerKey>('blue'); // actual visual style (may differ in dark mode)
 
   // Stable refs for callbacks
   const districtsRef = useRef(districts);
@@ -354,6 +355,7 @@ const MapComponent = forwardRef<MapComponentHandle, MapComponentProps>(({
       if (tileLayerRef.current) {
         map.removeLayer(tileLayerRef.current);
       }
+      userTileKeyRef.current = key;
       activeTileKeyRef.current = key;
       const def = TILE_LAYERS[key];
       tileLayerRef.current = L.tileLayer(def.url, def.options).addTo(map);
@@ -429,9 +431,8 @@ const MapComponent = forwardRef<MapComponentHandle, MapComponentProps>(({
     const map = mapRef.current;
     if (!map) return;
 
-    // Only auto-switch when on the default 'blue' tile layer
-    const activeKey = activeTileKeyRef.current;
-    if (activeKey !== 'blue') return;
+    // Only auto-switch when the user has 'blue' selected in the layer menu
+    if (userTileKeyRef.current !== 'blue') return;
 
     // Swap tile layer
     if (tileLayerRef.current) {
@@ -439,22 +440,17 @@ const MapComponent = forwardRef<MapComponentHandle, MapComponentProps>(({
     }
     if (isDark) {
       tileLayerRef.current = L.tileLayer(MAPBOX_DARK_STYLE_URL, MAPBOX_DARK_STYLE_OPTIONS).addTo(map);
+      activeTileKeyRef.current = 'dark'; // use dark overlay styles (transparent fill, borders only)
     } else {
       const def = TILE_LAYERS.blue;
       tileLayerRef.current = L.tileLayer(def.url, def.options).addTo(map);
+      activeTileKeyRef.current = 'blue'; // use blue overlay styles (choropleth fill)
     }
-
-    // Use dark overlay styles for dark mode, blue for light mode
-    const styleKey: TileLayerKey = isDark ? 'dark' : 'blue';
-    activeTileKeyRef.current = styleKey;
 
     if (dataLoadedRef.current) {
       renderGeoJson();
       renderLabels();
     }
-
-    // Restore key so layer menu still recognises 'blue' as active
-    activeTileKeyRef.current = activeKey;
   }, [isDark, renderGeoJson, renderLabels]);
 
   // Re-render when selectedDistrict changes
