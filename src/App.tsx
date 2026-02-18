@@ -7,7 +7,7 @@ import Calculator from '@/components/Calculator';
 import Header from '@/components/Header';
 import RightPanel from '@/components/RightPanel';
 import { ChevronDown, ChevronUp, Plus, Minus, Layers, Target, Sun, Moon } from 'lucide-react';
-import logoStackedDark from '@/assets/logo_stacked_dark.png';
+import logoStackedDark from './assets/logo_stacked_dark.png';
 
 const App: React.FC = () => {
   const [selectedDistrictId, setSelectedDistrictId] = useState<string | null>(null);
